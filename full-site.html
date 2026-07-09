@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Workplace Solutions — VOIS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+/* ================= DESIGN TOKENS ================= */
+:root{
+  --red: #E60000;
+  --red-dim: #A40000;
+  --purple: #9C2AA0;
+  --purple-dim: #6E1D72;
+  --ink: #0B0C0E;          /* near-black base */
+  --charcoal: #17181B;      /* panel bg */
+  --charcoal-2: #1F2023;    /* elevated panel */
+  --grey: #4A4D4E;
+  --grey-light: #8A8D90;
+  --line: rgba(255,255,255,0.08);
+  --line-strong: rgba(255,255,255,0.16);
+  --white: #FFFFFF;
+  --off-white: #EDEDEF;
+  --glass: rgba(255,255,255,0.045);
+  --glass-strong: rgba(255,255,255,0.07);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --ease: cubic-bezier(.16,.84,.44,1);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth; background:var(--ink);}
+body{
+  font-family:var(--font-body);
+  background:var(--ink);
+  color:var(--off-white);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--red); color:#fff;}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--ink);}
+::-webkit-scrollbar-thumb{background:#2b2c2f; border-radius:8px;}
+::-webkit-scrollbar-thumb:hover{background:var(--red-dim);}
+
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--red);
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:18px;
+}
+.eyebrow::before{
+  content:'';
+  width:26px; height:1px; background:var(--red);
+}
+.eyebrow .idx{color:var(--grey-light); font-weight:500;}
+
+.section{
+  position:relative;
+  padding:140px 8vw;
+  border-top:1px solid var(--line);
+}
+@media(max-width:768px){ .section{padding:90px 6vw;} }
+
+.section-head{max-width:760px; margin-bottom:64px;}
+.section-title{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:clamp(32px,4.6vw,58px);
+  line-height:1.04;
+  letter-spacing:-0.01em;
+  color:var(--white);
+}
+.section-title em{font-style:normal; color:var(--red);}
+.section-sub{
+  font-size:17px;
+  line-height:1.6;
+  color:var(--grey-light);
+  margin-top:20px;
+  max-width:640px;
+}
+
+.glass{
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(14px);
+  border-radius:18px;
+}
+.glass:hover{ border-color:var(--line-strong); background:var(--glass-strong); }
+
+.btn{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:var(--font-mono);
+  font-size:13px; letter-spacing:0.04em;
+  padding:15px 26px;
+  border-radius:100px;
+  border:1px solid var(--line-strong);
+  color:var(--white);
+  cursor:pointer;
+  transition:all .35s var(--ease);
+  background:transparent;
+  white-space:nowrap;
+}
+.btn:hover{ border-color:var(--red); background:rgba(230,0,0,0.1); transform:translateY(-2px); }
+.btn-solid{ background:var(--red); border-color:var(--red); }
+.btn-solid:hover{ background:#ff1a1a; border-color:#ff1a1a; box-shadow:0 8px 30px rgba(230,0,0,.35); }
+.btn svg{width:14px; height:14px; transition:transform .3s var(--ease);}
+.btn:hover svg{transform:translate(3px,-3px);}
+
+.reveal{ opacity:0; transform:translateY(36px); }
+
+.stat-num{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:clamp(28px,3.2vw,44px);
+  color:var(--white);
+  line-height:1;
+  display:flex; align-items:baseline; gap:4px;
+}
+.stat-num .unit{ font-size:0.45em; color:var(--red); font-weight:600; }
+.stat-label{
+  font-size:13px; color:var(--grey-light); margin-top:8px; line-height:1.4;
+}
+
+.pill{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.05em;
+  padding:5px 12px; border-radius:100px; border:1px solid var(--line-strong);
+  color:var(--grey-light); text-transform:uppercase;
+}
+
+/* nav */
+#nav{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 8vw;
+  background:rgba(11,12,14,0);
+  border-bottom:1px solid transparent;
+  transition:background .4s ease, border-color .4s ease, padding .4s ease;
+}
+#nav.scrolled{ background:rgba(11,12,14,0.82); backdrop-filter:blur(16px); border-bottom:1px solid var(--line); padding:14px 8vw; }
+#nav .logo{ font-family:var(--font-display); font-weight:700; font-size:18px; letter-spacing:-0.02em; display:flex; align-items:center; gap:10px;}
+#nav .logo .dot{width:9px; height:9px; border-radius:50%; background:var(--red);}
+#nav .links{display:flex; gap:34px; font-size:13px; color:var(--grey-light);}
+#nav .links a{ transition:color .25s; position:relative;}
+#nav .links a:hover{ color:var(--white); }
+#nav-toggle{ display:none; }
+@media(max-width:900px){
+  #nav .links{display:none;}
+}
+
+/* progress bar */
+#progress{ position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg,var(--red),var(--purple)); z-index:200; width:0%; }
+
+/* footer */
+#site-footer{
+  padding:80px 8vw 40px;
+  border-top:1px solid var(--line);
+  display:flex; flex-direction:column; gap:48px;
+}
+
+.data-label{ font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--grey-light); }
+
+canvas{display:block;}
+
+/* ---- technology ecosystem orbit ---- */
+#tech-universe{
+  position:relative; width:100%; max-width:640px; height:560px;
+  margin:12px auto 0; display:flex; align-items:center; justify-content:center;
+}
+#orbit-lines-svg{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
+#orbit-center{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:112px; height:112px; border-radius:50%; z-index:4;
+  background:radial-gradient(circle at 35% 30%, #ff3535, #A40000 70%);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 70px rgba(230,0,0,0.55), inset 0 0 20px rgba(255,255,255,0.15);
+}
+#orbit-center span{ font-family:var(--font-display); font-weight:700; color:#fff; font-size:19px; letter-spacing:-0.01em; }
+.orbit-ring-guide{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  border:1px dashed var(--line-strong); border-radius:50%; pointer-events:none;
+}
+#orbit-icons{ position:absolute; inset:0; }
+.orbit-icon{
+  position:absolute; left:0; top:0;
+  width:52px; height:52px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--charcoal-2); border:1px solid var(--line-strong);
+  color:#fff; cursor:pointer; z-index:3;
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease), border-color .25s var(--ease);
+}
+.orbit-icon svg{ width:22px; height:22px; stroke-width:2; }
+.orbit-icon:hover, .orbit-icon.active{
+  transform:scale(1.22) !important;
+  box-shadow:0 0 24px var(--badge-color, #E60000);
+  border-color:var(--badge-color, #E60000);
+  z-index:6;
+}
+.orbit-line{ stroke:var(--line-strong); stroke-width:1; transition:stroke .3s ease, stroke-width .3s ease; }
+.orbit-line.active{ stroke:var(--red); stroke-width:1.6; }
+
+#tech-detail-panel{
+  display:none; margin-top:28px; padding:24px;
+  background:var(--charcoal-2); border:1px solid var(--line-strong); border-radius:14px;
+}
+#tech-detail-panel.open{ display:block; }
+
+@media(max-width:900px){
+  #tech-universe, #orbit-lines-svg{ display:none; }
+  #tech-cloud{ display:flex !important; }
+}
+#journey-line-wrap{
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  pointer-events:none; z-index:5;
+}
+#journey-line-svg{ width:100%; height:100%; display:block; overflow:visible; }
+.journey-node{
+  fill:var(--ink); stroke:#E60000; stroke-width:2;
+  transform-origin:center; transform-box:fill-box;
+}
+.journey-node-core{ fill:#E60000; opacity:0; transform-origin:center; transform-box:fill-box; }
+.journey-particle{ fill:#fff; filter:drop-shadow(0 0 4px #E60000); }
+@media(max-width:900px){
+  #journey-line-wrap{ display:none; }
+}
+@media(prefers-reduced-motion: reduce){
+  .journey-particle{ display:none; }
+}
+/* ---- capability constellation ---- */
+.cap-card{
+  padding:28px 22px; text-align:left; position:relative; overflow:hidden;
+  animation: capFloat 5s ease-in-out infinite;
+}
+.cap-card .icon-circle{ width:52px; height:52px; border-radius:14px; margin-bottom:16px; }
+.cap-card .icon-circle svg{ width:24px; height:24px; }
+.cap-card h4{ font-family:var(--font-display); font-weight:600; font-size:15px; margin-bottom:6px; }
+.cap-card p{ font-size:12.5px; color:var(--grey-light); line-height:1.5; }
+@keyframes capFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-7px); } }
+@media(prefers-reduced-motion: reduce){ .cap-card{ animation:none; } }
+
+/* ---- general card hover-lift (services, domains, innovation, projects) ---- */
+.svc-card, .org-card, .innov-card, #projects-track > .glass, .who-cell{
+  transition:transform .3s var(--ease), background .3s ease, box-shadow .3s var(--ease);
+}
+.svc-card:hover, .org-card:hover{ transform:translateY(-3px); }
+.innov-card:hover, #projects-track > .glass:hover{ transform:translateY(-5px); box-shadow:0 20px 40px rgba(0,0,0,0.35); }
+.who-cell:hover{ background:var(--charcoal-2); }
+
+/* ---- vertical evolution roadmap ---- */
+#roadmap{ position:relative; max-width:920px; margin:0 auto; padding-top:10px; }
+#roadmap-spine{
+  position:absolute; left:50%; top:0; bottom:0; width:3px; transform:translateX(-50%);
+  background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden;
+}
+#roadmap-spine .spine-fill{
+  position:absolute; top:0; left:0; width:100%; height:0%;
+  background:linear-gradient(180deg,#E60000,#9C2AA0);
+  box-shadow:0 0 16px rgba(230,0,0,.65);
+}
+.roadmap-row{ display:flex; align-items:center; position:relative; min-height:130px; }
+.roadmap-row.right{ flex-direction:row-reverse; }
+.roadmap-card-col{ width:calc(50% - 30px); }
+.roadmap-row.left .roadmap-card-col{ text-align:right; }
+.roadmap-node-col{ width:60px; display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+.roadmap-node{
+  width:16px; height:16px; border-radius:50%; background:var(--charcoal-2);
+  border:2px solid var(--line-strong); position:relative; z-index:2; transition:all .4s var(--ease);
+}
+.roadmap-node.active{ background:#E60000; border-color:#E60000; box-shadow:0 0 0 9px rgba(230,0,0,0.14), 0 0 20px rgba(230,0,0,.75); }
+.roadmap-year{ font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--grey-light); margin-top:8px; transition:color .4s ease; }
+.roadmap-year.active{ color:#E60000; }
+.roadmap-card{ padding:22px 24px; cursor:pointer; }
+.roadmap-row.left .roadmap-card{ margin-left:auto; }
+.roadmap-desc{ max-height:0; overflow:hidden; transition:max-height .4s var(--ease); }
+@media(max-width:900px){
+  #roadmap-spine{ left:20px; }
+  .roadmap-row, .roadmap-row.right{ flex-direction:row !important; }
+  .roadmap-node-col{ width:44px; }
+  .roadmap-card-col{ width:calc(100% - 44px) !important; text-align:left !important; }
+  .roadmap-row.left .roadmap-card{ margin-left:0; }
+}
+
+.tech-badge{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 16px 10px 10px;
+  border-radius:100px;
+  border:1px solid var(--line-strong);
+  background:var(--charcoal);
+  transition:all .3s var(--ease);
+}
+.tech-badge:hover{ border-color:var(--badge-color, var(--red)); background:var(--charcoal-2); transform:translateY(-2px); }
+.tech-badge .badge-icon{
+  width:30px; height:30px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--badge-color, var(--red));
+  color:#fff; flex-shrink:0;
+}
+.tech-badge .badge-icon svg{ width:16px; height:16px; stroke-width:2.2; }
+.tech-badge span.label{ font-family:var(--font-mono); font-size:12px; color:var(--off-white); white-space:nowrap; }
+
+/* ---- icon circle (used in service/org/innovation cards) ---- */
+.icon-circle{
+  width:38px; height:38px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(230,0,0,0.12); color:var(--red);
+  margin-bottom:14px;
+}
+.icon-circle svg{ width:19px; height:19px; stroke-width:2; }
+.icon-circle.purple{ background:rgba(156,42,160,0.14); color:var(--purple); }
+.icon-circle.green{ background:rgba(61,220,132,0.14); color:#3ddc84; }
+
+/* ---- photo treatment ---- */
+.photo-frame{
+  border-radius:18px; overflow:hidden; position:relative;
+  border:1px solid var(--line);
+}
+.photo-frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+.photo-frame::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(11,12,14,0) 40%, rgba(11,12,14,0.75) 100%);
+}
+.photo-caption{
+  position:absolute; left:20px; bottom:16px; z-index:2;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#fff;
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav id="nav">
+  <div class="logo"><span class="dot"></span>VOIS<span style="color:var(--grey-light); font-weight:500;">·DWS</span></div>
+  <div class="links">
+    <a href="#who-we-are">Who We Are</a>
+    <a href="#services">Services</a>
+    <a href="#journey">Journey</a>
+    <a href="#innovation">Innovation</a>
+    <a href="#sustainability">Sustainability</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="#contact" class="btn btn-solid">Explore DWS</a>
+</nav>
+
+<!-- ============ GLOBAL DWS JOURNEY LINE ============ -->
+<div id="journey-line-wrap" aria-hidden="true">
+  <svg id="journey-line-svg" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="journeyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#E60000" stop-opacity="0.2"/>
+        <stop offset="12%" stop-color="#E60000" stop-opacity="1"/>
+        <stop offset="88%" stop-color="#E60000" stop-opacity="1"/>
+        <stop offset="100%" stop-color="#9C2AA0" stop-opacity="0.6"/>
+      </linearGradient>
+      <filter id="journeyGlow" x="-200%" y="-20%" width="500%" height="140%">
+        <feGaussianBlur stdDeviation="4" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <path id="journey-track-path" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+    <path id="journey-progress-path" fill="none" stroke="url(#journeyGrad)" stroke-width="2.5" filter="url(#journeyGlow)" stroke-linecap="round"/>
+    <g id="journey-nodes"></g>
+    <g id="journey-particles"></g>
+  </svg>
+</div>
+
+<!-- ============ HERO ============ -->
+<header id="hero" style="position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:0 8vw; overflow:hidden; border-top:none;">
+  <canvas id="network-canvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0.55;"></canvas>
+  <div style="position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(230,0,0,0.14), transparent 60%), radial-gradient(ellipse 60% 50% at 90% 90%, rgba(156,42,160,0.16), transparent 60%);"></div>
+
+  <div style="position:relative; z-index:2; padding-top:120px;">
+    <div class="eyebrow" style="opacity:0;" id="hero-eyebrow">VOIS · DIGITAL WORKPLACE SOLUTIONS</div>
+    <h1 style="font-family:var(--font-display); font-weight:600; font-size:clamp(40px,7.2vw,104px); line-height:0.98; letter-spacing:-0.02em; max-width:1100px;">
+      <span class="hero-line" style="display:block; overflow:hidden;"><span class="hero-line-inner" style="display:block;">Smart digital experiences,</span></span>
+      <span class="hero-line" style="display:block; overflow:hidden;"><span class="hero-line-inner" style="display:block; color:var(--red);">engineered at Vodafone scale.</span></span>
+    </h1>
+    <p id="hero-sub" style="opacity:0; margin-top:32px; font-size:18px; color:var(--grey-light); max-width:560px; line-height:1.65;">
+      DWS delivers AI-driven productivity, workplace transformation, and zero-trust security across 20 markets — turning everyday employee experience into Vodafone's next commercial value engine.
+    </p>
+    <div id="hero-cta" style="opacity:0; display:flex; gap:16px; margin-top:44px; flex-wrap:wrap;">
+      <a href="#services" class="btn btn-solid">Explore DWS <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+      <a href="#value" class="btn">View Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+      <a href="#innovation" class="btn">Innovation Portfolio <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+    </div>
+  </div>
+
+  <div id="hero-stats" style="position:relative; z-index:2; margin-top:90px; padding-top:36px; border-top:1px solid var(--line); display:grid; grid-template-columns:repeat(6,1fr); gap:18px;">
+    <div><div class="stat-num"><span data-count="137" data-decimals="0">0</span><span class="unit">K+</span></div><div class="stat-label">Active Users</div></div>
+    <div><div class="stat-num"><span data-count="216" data-decimals="0">0</span><span class="unit">K</span></div><div class="stat-label">Mailboxes</div></div>
+    <div><div class="stat-num"><span data-count="142" data-decimals="0">0</span><span class="unit">K</span></div><div class="stat-label">Managed Win Clients</div></div>
+    <div><div class="stat-num"><span data-count="84" data-decimals="0">0</span><span class="unit">K</span></div><div class="stat-label">Mobile Devices</div></div>
+    <div><div class="stat-num"><span data-count="20" data-decimals="0">0</span></div><div class="stat-label">Supported Markets</div></div>
+    <div><div class="stat-num"><span data-count="350" data-decimals="0">0</span><span class="unit">+</span></div><div class="stat-label">Skilled Specialists</div></div>
+  </div>
+  <div style="position:absolute; bottom:28px; left:8vw; display:flex; align-items:center; gap:10px; color:var(--grey-light); font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; z-index:2;">
+    <div style="width:1px; height:34px; background:linear-gradient(var(--grey-light),transparent); animation:scrolldown 1.8s infinite;"></div>
+    SCROLL
+  </div>
+</header>
+
+<style>
+@media(max-width:900px){ #hero-stats{grid-template-columns:repeat(3,1fr) !important;} }
+@media(max-width:520px){ #hero-stats{grid-template-columns:repeat(2,1fr) !important;} }
+@keyframes scrolldown{ 0%{transform:scaleY(0); transform-origin:top;} 50%{transform:scaleY(1); transform-origin:top;} 51%{transform-origin:bottom;} 100%{transform:scaleY(0); transform-origin:bottom;} }
+</style>
+
+<!-- ============ WHO WE ARE ============ -->
+<section class="section" id="who-we-are">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">01</span> Who We Are</div>
+    <h2 class="section-title">Digital Workplace Solutions is <em>VOIS's</em> employee-experience engine.</h2>
+    <p class="section-sub">We deliver smart and superior employee experiences through digital solutions that reinforce productivity, transform workstyle, streamline process, and maximise the value of every digital investment — leveraging hyper-personalisation and zero-trust security to run next-generation service operations, transformation and adoption.</p>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:repeat(6,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden; margin-bottom:60px;">
+    <div class="who-cell"><div class="stat-num">20</div><div class="stat-label">Supported Markets</div></div>
+    <div class="who-cell"><div class="stat-num">14</div><div class="stat-label">Vodafone Entities</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="350">0</span><span class="unit">+</span></div><div class="stat-label">Skilled Workforce</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="150">0</span><span class="unit">+</span></div><div class="stat-label">Projects Annually</div></div>
+    <div class="who-cell"><div class="stat-num">€<span data-count="200">0</span><span class="unit">M</span></div><div class="stat-label">Projects Managed</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="98">0</span><span class="unit">%</span></div><div class="stat-label">Delivered On Cost, Quality & Time</div></div>
+  </div>
+
+  <div class="reveal" style="margin-bottom:60px;">
+    <div class="data-label" style="margin-bottom:20px;">What We Power — The DWS Capability Constellation</div>
+    <div id="capability-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;"></div>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:1.1fr 1fr; gap:60px; align-items:start;">
+    <div>
+      <div class="photo-frame" style="height:220px; margin-bottom:24px;">
+        <img src="https://images.pexels.com/photos/29267512/pexels-photo-29267512.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="DWS employees collaborating in a modern workspace" loading="lazy">
+        <div class="photo-caption">Employee Experience · Everyday Collaboration</div>
+      </div>
+      <div class="data-label" style="margin-bottom:18px;">Our Landscape — 02 Delivery Centres</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div class="glass" style="padding:22px;"><div class="stat-num" style="font-size:26px;"><span data-count="123.1" data-decimals="1">0</span><span class="unit">K</span></div><div class="stat-label">Teams Created</div></div>
+        <div class="glass" style="padding:22px;"><div class="stat-num" style="font-size:26px;"><span data-count="1.34" data-decimals="2">0</span><span class="unit">M</span></div><div class="stat-label">Teams Meetings</div></div>
+        <div class="glass" style="padding:22px;"><div class="stat-num" style="font-size:26px;"><span data-count="320" data-decimals="0">0</span><span class="unit">M</span></div><div class="stat-label">Emails Sent / Received</div></div>
+        <div class="glass" style="padding:22px;"><div class="stat-num" style="font-size:26px;"><span data-count="209" data-decimals="0">0</span><span class="unit">K</span></div><div class="stat-label">SharePoint Sites</div></div>
+        <div class="glass" style="padding:22px;"><div class="stat-num" style="font-size:26px;"><span data-count="333" data-decimals="0">0</span><span class="unit">K+</span></div><div class="stat-label">AD / Entra ID Accounts</div></div>
+        <div class="glass" style="padding:22px;"><div class="stat-num" style="font-size:26px;"><span data-count="64.6" data-decimals="1">0</span><span class="unit">M</span></div><div class="stat-label">SSO Requests</div></div>
+      </div>
+    </div>
+    <div class="glass" style="padding:32px; position:sticky; top:110px;">
+      <div class="data-label" style="margin-bottom:14px;">Identity & Access</div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="mini-bar"><span>2K EntraID Integrated Apps</span></div>
+        <div class="mini-bar"><span>160K MFA Users</span></div>
+        <div class="mini-bar"><span>138K Provisioned Users</span></div>
+        <div class="mini-bar"><span>156K E5 · 34K F3 Licenses</span></div>
+      </div>
+      <div style="margin-top:22px; padding-top:22px; border-top:1px solid var(--line); font-size:13px; color:var(--grey-light); line-height:1.6;">
+        Zero-trust identity underwrites every DWS experience — from passwordless sign-in to hyper-personalised device provisioning.
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.who-cell{ background:var(--charcoal); padding:30px 22px; }
+.mini-bar{ font-family:var(--font-mono); font-size:12.5px; color:var(--off-white); padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--charcoal); }
+@media(max-width:900px){
+  #who-we-are > div.reveal:nth-of-type(2){ grid-template-columns:repeat(2,1fr) !important; }
+  #capability-grid{ grid-template-columns:repeat(2,1fr) !important; }
+  #who-we-are > div.reveal:nth-of-type(4){ grid-template-columns:1fr !important; }
+  #services-grid{ grid-template-columns:repeat(2,1fr) !important; }
+  #domains > div.reveal:nth-of-type(1){ grid-template-columns:repeat(3,1fr) !important; }
+  #value > div.reveal:nth-of-type(1){ grid-template-columns:repeat(2,1fr) !important; }
+  #value > div.reveal.glass{ grid-template-columns:1fr !important; }
+  #operations > div.reveal:nth-of-type(3){ grid-template-columns:1fr !important; }
+  #operations > div.reveal.glass{ grid-template-columns:1fr !important; }
+  #innovation-grid{ grid-template-columns:1fr !important; }
+  #sustainability > div.reveal:nth-of-type(2){ grid-template-columns:1fr !important; }
+  #sustainability > div.reveal:nth-of-type(3){ grid-template-columns:repeat(2,1fr) !important; }
+  #copilot-flow{ grid-template-columns:1fr !important; }
+  #org-grid{ grid-template-columns:repeat(2,1fr) !important; }
+  #footprint > div.reveal:nth-of-type(2){ grid-template-columns:repeat(2,1fr) !important; }
+  #footprint-map{ min-height:340px !important; }
+  #footprint-map svg{ height:340px !important; }
+}
+</style>
+
+<!-- ============ GLOBAL FOOTPRINT ============ -->
+<section class="section" id="footprint" style="background:var(--charcoal);">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">—</span> Global Footprint</div>
+    <h2 class="section-title">One <em>VOIS</em>, seven countries, one delivery engine.</h2>
+    <p class="section-sub">30,500 FTEs operate across a hub-and-spoke model spanning Europe, Egypt and India — anchoring Vodafone's global technology and business services backbone. Hover a location for detail.</p>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden; margin-bottom:28px;">
+    <div class="who-cell"><div class="stat-num"><span data-count="30500">0</span><span class="unit">+</span></div><div class="stat-label">Employees</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="14206">0</span></div><div class="stat-label">Technology FTEs</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="20">0</span><span class="unit">+</span></div><div class="stat-label">Markets Supported</div></div>
+    <div class="who-cell"><div class="stat-num">14</div><div class="stat-label">Vodafone Entities</div></div>
+    <div class="who-cell"><div class="stat-num">02</div><div class="stat-label">Delivery Centres</div></div>
+    <div class="who-cell"><div class="stat-num">€<span data-count="711">0</span><span class="unit">M</span></div><div class="stat-label">Annual Billing</div></div>
+    <div class="who-cell"><div class="stat-num">€<span data-count="1.6" data-decimals="1">0</span><span class="unit">Bn</span></div><div class="stat-label">Savings since FY'11</div></div>
+  </div>
+
+  <div id="footprint-map" class="glass reveal" style="padding:0; min-height:480px; position:relative; overflow:hidden;">
+    <svg id="world-svg" viewBox="0 0 1000 480" preserveAspectRatio="xMidYMid meet" style="width:100%; height:480px; display:block;"></svg>
+    <div id="map-tooltip" style="position:absolute; pointer-events:none; opacity:0; transition:opacity .2s ease; background:var(--charcoal-2); border:1px solid var(--line-strong); border-radius:10px; padding:14px 16px; min-width:190px; z-index:10; box-shadow:0 20px 40px rgba(0,0,0,0.4);">
+      <div class="data-label" id="tt-name" style="color:var(--red);"></div>
+      <div style="font-family:var(--font-display); font-size:18px; font-weight:600; margin-top:6px;" id="tt-fte"></div>
+      <div style="font-size:12px; color:var(--grey-light); margin-top:6px; line-height:1.5;" id="tt-services"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVICES PORTFOLIO ============ -->
+<section class="section" id="services">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">02</span> Service Portfolio</div>
+    <h2 class="section-title">Twelve services. <em>One</em> workplace ecosystem.</h2>
+    <p class="section-sub">Click any service to expand its scope. Together they form the full DWS delivery stack — from architecture through to sustainability.</p>
+  </div>
+
+  <div id="services-grid" class="reveal" style="display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden;"></div>
+</section>
+
+<!-- ============ DOMAINS OF EXPERTISE ============ -->
+<section class="section" id="domains" style="background:var(--charcoal);">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">03</span> Domains of Expertise</div>
+    <h2 class="section-title">A capability matrix built on the <em>Microsoft</em> stack.</h2>
+    <p class="section-sub">Six domains, one integrated technology backbone — powering messaging, collaboration, real-time comms, infrastructure and endpoint management for every user, everywhere.</p>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:44px;">
+    <!-- domain chips injected by JS -->
+    <div id="domain-chips" style="display:contents;"></div>
+  </div>
+
+  <div class="reveal glass" id="tech-universe-panel" style="padding:36px;">
+    <div style="display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:8px;">
+      <div class="data-label">Technology Ecosystem</div>
+      <div class="data-label" style="color:var(--grey-light); text-transform:none; letter-spacing:normal;">Click any node for detail →</div>
+    </div>
+
+    <div id="tech-universe">
+      <svg id="orbit-lines-svg"></svg>
+      <div id="orbit-center">
+        <span>VOIS</span>
+      </div>
+      <div id="orbit-ring-1" class="orbit-ring-guide"></div>
+      <div id="orbit-ring-2" class="orbit-ring-guide"></div>
+      <div id="orbit-icons"></div>
+    </div>
+
+    <div id="tech-detail-panel">
+      <div style="display:flex; align-items:flex-start; gap:16px;">
+        <span class="badge-icon" id="tech-detail-icon" style="width:44px;height:44px;flex-shrink:0;"></span>
+        <div style="flex:1;">
+          <div style="font-family:var(--font-display); font-weight:600; font-size:18px;" id="tech-detail-name"></div>
+          <div class="pill" id="tech-detail-category" style="margin-top:8px; display:inline-block;"></div>
+          <p id="tech-detail-desc" style="font-size:13.5px; color:var(--grey-light); line-height:1.6; margin-top:12px;"></p>
+          <div class="data-label" style="margin-top:14px; margin-bottom:8px;">Services Using This Technology</div>
+          <div id="tech-detail-services" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- flat fallback for small screens -->
+    <div id="tech-cloud" style="display:none; flex-wrap:wrap; gap:10px;"></div>
+  </div>
+</section>
+
+<!-- ============ EVOLUTION JOURNEY ============ -->
+<section class="section" id="journey">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">—</span> DWS Evolution</div>
+    <h2 class="section-title">Thirteen years. <em>2014</em> to <em>2026</em>.</h2>
+    <p class="section-sub">From capability building to commercialisation — scroll to trace how DWS grew from a single Ops Support go-live into Vodafone's AI-powered digital workplace engine.</p>
+  </div>
+
+  <div id="roadmap" class="reveal">
+    <div id="roadmap-spine"><div class="spine-fill"></div></div>
+    <div id="roadmap-rows"></div>
+  </div>
+</section>
+
+<!-- ============ VALUE DELIVERED ============ -->
+<section class="section" id="value" style="background:var(--charcoal);">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">—</span> Value Delivered</div>
+    <h2 class="section-title">The workplace, <em>quantified</em>.</h2>
+    <p class="section-sub">A live view of scale and savings — the operational footprint DWS carries for Vodafone every single day.</p>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden; margin-bottom:40px;">
+    <div class="who-cell"><div class="stat-num"><span data-count="137">0</span><span class="unit">K</span></div><div class="stat-label">Users Supported</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="225">0</span><span class="unit">K</span></div><div class="stat-label">Mailboxes Migrated</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="78">0</span><span class="unit">K</span></div><div class="stat-label">Copilot Users Enabled</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="2.9" data-decimals="1">0</span><span class="unit">PB</span></div><div class="stat-label">Email Data Managed</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="64">0</span><span class="unit">+</span></div><div class="stat-label">Services Supported</div></div>
+    <div class="who-cell"><div class="stat-num">€<span data-count="11">0</span><span class="unit">M+</span></div><div class="stat-label">Savings Delivered</div></div>
+    <div class="who-cell"><div class="stat-num">€<span data-count="25">0</span><span class="unit">M</span></div><div class="stat-label">License Optimisation</div></div>
+    <div class="who-cell"><div class="stat-num"><span data-count="98">0</span><span class="unit">%</span></div><div class="stat-label">On-Time / On-Cost Delivery</div></div>
+  </div>
+
+  <div class="reveal glass" style="padding:32px; display:grid; grid-template-columns:1.3fr 1fr; gap:32px; align-items:center;">
+    <div>
+      <div class="data-label" style="margin-bottom:14px;">Copilot & Mailbox Growth, FY24 → FY26</div>
+      <canvas id="value-chart" height="220"></canvas>
+    </div>
+    <div style="font-size:14px; line-height:1.7; color:var(--grey-light);">
+      Migration momentum and Copilot enablement have compounded together — as mailboxes moved to the cloud, adoption tooling and usage reporting scaled in parallel, culminating in the 2025 Copilot Adoption Program.
+    </div>
+  </div>
+</section>
+
+<!-- ============ INNOVATION & AI ============ -->
+<section class="section" id="innovation">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">—</span> Innovation & AI</div>
+    <h2 class="section-title">Built in-house. <em>Shipped</em> at scale.</h2>
+    <p class="section-sub">The GenAI Centre of Excellence incubates and productises DWS's own tools — from Copilot adoption analytics to purpose-built automation platforms.</p>
+  </div>
+  <div id="innovation-grid" class="reveal" style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;"></div>
+</section>
+
+<!-- ============ STRATEGIC PROJECTS ============ -->
+<section class="section" id="projects" style="background:var(--charcoal); padding-left:0; padding-right:0;">
+  <div class="section-head reveal" style="padding:0 8vw;">
+    <div class="eyebrow"><span class="idx">—</span> Strategic Projects</div>
+    <h2 class="section-title">Five programmes. <em>Enterprise</em> impact.</h2>
+    <p class="section-sub">Drag to explore the flagship engagements DWS has delivered for Vodafone markets and Group functions.</p>
+  </div>
+  <div id="projects-track-wrap" style="overflow-x:auto; padding:10px 8vw 20px;">
+    <div id="projects-track" style="display:flex; gap:20px; width:max-content;"></div>
+  </div>
+</section>
+
+<!-- ============ OPERATIONAL EXCELLENCE ============ -->
+<section class="section" id="operations">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">—</span> Operational Excellence</div>
+    <h2 class="section-title">A command centre for <em>service reliability</em>.</h2>
+    <p class="section-sub">Operational Silence and Service Reliability Engineering drive incident reduction, faster releases and predictable change — measured continuously.</p>
+  </div>
+
+  <div class="photo-frame reveal" style="height:260px; margin-bottom:28px;">
+    <img src="https://images.pexels.com/photos/4508751/pexels-photo-4508751.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Data centre corridor with server racks powering DWS operations" loading="lazy">
+    <div class="photo-caption">Service Reliability Engineering · 24×7 Operations</div>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:20px;">
+    <div class="glass" style="padding:28px;">
+      <div class="icon-circle"><i data-lucide="trending-down"></i></div>
+      <div class="stat-num"><span data-count="30">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Fewer P3 / P4 Incidents</div>
+      <div style="margin-top:16px; height:6px; background:var(--charcoal-2); border-radius:4px; overflow:hidden;"><div class="op-bar" style="width:30%; height:100%; background:var(--red); border-radius:4px;"></div></div>
+    </div>
+    <div class="glass" style="padding:28px;">
+      <div class="icon-circle purple"><i data-lucide="rocket"></i></div>
+      <div class="stat-num"><span data-count="90">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Automated Deployments</div>
+      <div style="margin-top:16px; height:6px; background:var(--charcoal-2); border-radius:4px; overflow:hidden;"><div class="op-bar" style="width:90%; height:100%; background:var(--purple); border-radius:4px;"></div></div>
+    </div>
+    <div class="glass" style="padding:28px;">
+      <div class="icon-circle"><i data-lucide="heart-pulse"></i></div>
+      <div class="stat-num"><span data-count="40">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Daily Health Checks Automated</div>
+      <div style="margin-top:16px; height:6px; background:var(--charcoal-2); border-radius:4px; overflow:hidden;"><div class="op-bar" style="width:40%; height:100%; background:var(--red);border-radius:4px;"></div></div>
+    </div>
+  </div>
+
+  <div class="reveal glass" style="padding:32px; display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+    <div><div class="data-label">Deployment Cycle Time</div><div style="font-family:var(--font-display); font-size:22px; margin-top:10px;">3 days <span style="color:var(--grey-light); font-size:14px;">→</span> <span style="color:var(--red);">&lt; 6 hours</span></div></div>
+    <div><div class="data-label">Critical Failures, Last 6 Releases</div><div style="font-family:var(--font-display); font-size:22px; margin-top:10px;">Zero</div></div>
+    <div><div class="data-label">Hours Freed Annually</div><div style="font-family:var(--font-display); font-size:22px; margin-top:10px;"><span data-count="2000">0</span>+ hrs</div></div>
+  </div>
+</section>
+
+<!-- ============ SUSTAINABILITY ============ -->
+<section class="section" id="sustainability" style="background:linear-gradient(180deg, var(--ink) 0%, #0e1a12 100%);">
+  <div class="section-head reveal">
+    <div class="eyebrow" style="color:#3ddc84;"><span class="idx">—</span> _VOIS of Sustainability</div>
+    <h2 class="section-title">Digital Influence: reducing our <em style="color:#3ddc84;">carbon</em> footprint.</h2>
+    <p class="section-sub">A typical year of incoming email adds 136kg of emissions — equivalent to driving 320km. DWS is turning everyday email hygiene into measurable Scope 3 impact.</p>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:0.9fr 1.1fr 1fr; gap:28px; margin-bottom:40px;">
+    <div class="photo-frame" style="height:100%; min-height:280px;">
+      <img src="https://images.pexels.com/photos/2739664/pexels-photo-2739664.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Aerial view of green forest representing sustainability" loading="lazy">
+      <div class="photo-caption">Scope 3 · Digital Influence</div>
+    </div>
+    <div class="glass" style="padding:32px;">
+      <div class="data-label" style="margin-bottom:18px;">Monthly CO₂ Emissions by Email Type</div>
+      <canvas id="sustain-chart" height="220"></canvas>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; justify-content:center;">
+      <div class="glass" style="padding:22px; display:flex; justify-content:space-between; align-items:center;"><span class="stat-label" style="margin:0;">Emails sent & received / month</span><span class="stat-num" style="font-size:22px;"><span data-count="315">0</span>M</span></div>
+      <div class="glass" style="padding:22px; display:flex; justify-content:space-between; align-items:center;"><span class="stat-label" style="margin:0;">Avg CO₂ emissions / month</span><span class="stat-num" style="font-size:22px;"><span data-count="1250">0</span> t</span></div>
+      <div class="glass" style="padding:22px; display:flex; justify-content:space-between; align-items:center;"><span class="stat-label" style="margin:0;">Attachment-driven emissions</span><span class="stat-num" style="font-size:22px; color:#3ddc84;">~80%</span></div>
+    </div>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+    <div class="glass" style="padding:22px;"><div class="icon-circle green"><i data-lucide="minimize-2"></i></div><div class="data-label" style="color:#3ddc84;">Simplify</div><div style="font-size:14px; margin-top:10px; color:var(--off-white);">Strip heavy images from email signatures</div></div>
+    <div class="glass" style="padding:22px;"><div class="icon-circle green"><i data-lucide="link"></i></div><div class="data-label" style="color:#3ddc84;">Reduce</div><div style="font-size:14px; margin-top:10px; color:var(--off-white);">Share links via collaboration tools, not attachments</div></div>
+    <div class="glass" style="padding:22px;"><div class="icon-circle green"><i data-lucide="shield-off"></i></div><div class="data-label" style="color:#3ddc84;">Minimise</div><div style="font-size:14px; margin-top:10px; color:var(--off-white);">Filter spam domains, disable read receipts</div></div>
+    <div class="glass" style="padding:22px;"><div class="icon-circle green"><i data-lucide="trash-2"></i></div><div class="data-label" style="color:#3ddc84;">Delete</div><div style="font-size:14px; margin-top:10px; color:var(--off-white);">Clear unneeded mail and generic notifications</div></div>
+  </div>
+</section>
+
+<!-- ============ COPILOT & AI TRANSFORMATION ============ -->
+<section class="section" id="copilot" style="background:radial-gradient(ellipse 70% 60% at 80% 20%, rgba(156,42,160,0.14), var(--ink) 60%);">
+  <div class="section-head reveal">
+    <div class="eyebrow" style="color:var(--purple);"><span class="idx">—</span> Copilot & AI Transformation</div>
+    <h2 class="section-title">From rollout to <em style="color:var(--purple);">readiness</em>.</h2>
+    <p class="section-sub">A structured adoption framework moves every user from license to habit — governed, measured, and continuously optimised.</p>
+  </div>
+
+  <div id="copilot-flow" class="reveal" style="display:grid; grid-template-columns:repeat(5,1fr); gap:0; position:relative;"></div>
+</section>
+
+<!-- ============ AUTOMATION CENTER OF EXCELLENCE ============ -->
+<section class="section" id="automation" style="background:var(--charcoal);">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">—</span> Automation CoE</div>
+    <h2 class="section-title">Automation at <em>industrial</em> scale.</h2>
+    <p class="section-sub">Power Platform, RPA, Workato, GenAI and OCR converge inside one Automation Delivery Framework.</p>
+  </div>
+
+  <div class="reveal" style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; margin-bottom:44px;">
+    <div class="glass" style="padding:36px;">
+      <div class="stat-num" style="font-size:56px;"><span data-count="859">0</span></div>
+      <div class="stat-label">Automated Processes in Production</div>
+    </div>
+    <div class="glass" style="padding:36px;">
+      <div class="stat-num" style="font-size:56px;"><span data-count="56.6" data-decimals="1">0</span><span class="unit">M</span></div>
+      <div class="stat-label">Transactions Processed</div>
+    </div>
+  </div>
+
+  <div id="automation-cloud" class="reveal" style="display:flex; flex-wrap:wrap; gap:12px;"></div>
+</section>
+
+<!-- ============ ORGANIZATION & DELIVERY MODEL ============ -->
+<section class="section" id="org">
+  <div class="section-head reveal">
+    <div class="eyebrow"><span class="idx">—</span> Organization & Delivery Model</div>
+    <h2 class="section-title">Ten service lines. <em>14,206</em> technology FTEs.</h2>
+    <p class="section-sub">Click a service line to expand its charter and headcount — the engine behind VOIS's global portfolio.</p>
+  </div>
+  <div id="org-grid" class="reveal" style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden;"></div>
+</section>
+
+<!-- ============ CONTACT / CTA ============ -->
+<section class="section" id="contact" style="text-align:center; padding-top:160px; padding-bottom:160px; position:relative; overflow:hidden; border-top:1px solid var(--line);">
+  <img src="https://images.pexels.com/photos/29284266/pexels-photo-29284266.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.16; filter:grayscale(40%);">
+  <div style="position:absolute; inset:0; background:radial-gradient(ellipse 60% 70% at 50% 100%, rgba(230,0,0,0.28), rgba(11,12,14,0.85) 65%);"></div>
+  <div class="reveal" style="position:relative; z-index:2; max-width:800px; margin:0 auto;">
+    <div class="eyebrow" style="justify-content:center;"><span class="idx">—</span> Let's Talk</div>
+    <h2 class="section-title" style="font-size:clamp(30px,4.4vw,52px);">Transforming digital workplace experiences through <em>innovation</em>, AI, collaboration and operational excellence.</h2>
+    <div style="display:flex; gap:16px; justify-content:center; margin-top:44px; flex-wrap:wrap;">
+      <a href="#" class="btn btn-solid">Contact DWS <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+      <a href="#innovation" class="btn">Explore Innovation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+      <a href="#projects" class="btn">View Success Stories <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer">
+  <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:40px;">
+    <div style="max-width:320px;">
+      <div class="logo" style="font-family:var(--font-display); font-weight:700; font-size:18px; display:flex; align-items:center; gap:10px; margin-bottom:14px;"><span class="dot" style="width:9px;height:9px;border-radius:50%;background:var(--red); display:inline-block;"></span>VOIS · DWS</div>
+      <p style="font-size:13px; color:var(--grey-light); line-height:1.6;">Digital Workplace Solutions is Vodafone Intelligent Solutions' flagship organization for workplace, collaboration, AI, automation, infrastructure, security and sustainability.</p>
+    </div>
+    <div style="display:flex; gap:60px; flex-wrap:wrap;">
+      <div>
+        <div class="data-label" style="margin-bottom:14px;">Explore</div>
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:13px; color:var(--grey-light);">
+          <a href="#services">Services</a><a href="#journey">Evolution Journey</a><a href="#innovation">Innovation & AI</a><a href="#sustainability">Sustainability</a>
+        </div>
+      </div>
+      <div>
+        <div class="data-label" style="margin-bottom:14px;">Company</div>
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:13px; color:var(--grey-light);">
+          <a href="#who-we-are">Who We Are</a><a href="#footprint">Global Footprint</a><a href="#org">Organization</a><a href="#contact">Contact</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex; justify-content:space-between; padding-top:28px; border-top:1px solid var(--line); font-size:12px; color:var(--grey-light); flex-wrap:wrap; gap:10px;">
+    <span>© 2026 VOIS — Digital Workplace Solutions. Concept showcase.</span>
+    <span class="pill">C2 General</span>
+  </div>
+</footer>
+
+
+<script>
+/* ================= GLOBAL ENGINE ================= */
+gsap.registerPlugin(ScrollTrigger);
+
+// nav scroll state
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', ()=>{
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+  const h = document.documentElement;
+  const pct = (h.scrollTop)/(h.scrollHeight - h.clientHeight) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+});
+
+// generic reveal
+document.querySelectorAll('.reveal').forEach((el,i)=>{
+  gsap.to(el, {
+    opacity:1, y:0, duration:1, ease:'power3.out',
+    scrollTrigger:{ trigger:el, start:'top 88%' },
+    delay: (i%4)*0.06
+  });
+});
+
+// counters
+function animateCounter(el){
+  const target = parseFloat(el.dataset.count);
+  const decimals = el.dataset.decimals ? parseInt(el.dataset.decimals) : 0;
+  const obj = {val:0};
+  gsap.to(obj, {
+    val:target, duration:2, ease:'power2.out',
+    scrollTrigger:{ trigger:el, start:'top 90%', once:true },
+    onUpdate:()=>{ el.textContent = obj.val.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  });
+}
+document.querySelectorAll('[data-count]').forEach(animateCounter);
+
+/* ---- hero intro ---- */
+gsap.timeline({defaults:{ease:'power3.out'}})
+  .to('#hero-eyebrow', {opacity:1, y:0, duration:.7}, 0.1)
+  .from('.hero-line-inner', {yPercent:110, duration:1, stagger:0.12}, 0.2)
+  .to('#hero-sub', {opacity:1, duration:.8}, 0.7)
+  .to('#hero-cta', {opacity:1, duration:.8}, 0.85);
+
+/* ---- particle network canvas ---- */
+(function(){
+  const canvas = document.getElementById('network-canvas');
+  const ctx = canvas.getContext('2d');
+  let w,h,nodes=[];
+  function resize(){
+    w = canvas.width = canvas.offsetWidth * devicePixelRatio;
+    h = canvas.height = canvas.offsetHeight * devicePixelRatio;
+  }
+  function init(){
+    resize();
+    const count = window.innerWidth < 700 ? 34 : 64;
+    nodes = Array.from({length:count}, ()=>({
+      x: Math.random()*w, y: Math.random()*h,
+      vx:(Math.random()-.5)*0.25, vy:(Math.random()-.5)*0.25,
+      r: Math.random()*1.6+0.6
+    }));
+  }
+  function tick(){
+    ctx.clearRect(0,0,w,h);
+    nodes.forEach(n=>{
+      n.x += n.vx; n.y += n.vy;
+      if(n.x<0||n.x>w) n.vx*=-1;
+      if(n.y<0||n.y>h) n.vy*=-1;
+    });
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const a=nodes[i], b=nodes[j];
+        const d = Math.hypot(a.x-b.x, a.y-b.y);
+        const maxD = 160*devicePixelRatio;
+        if(d < maxD){
+          ctx.strokeStyle = `rgba(230,0,0,${(1-d/maxD)*0.18})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        }
+      }
+    }
+    nodes.forEach(n=>{
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.arc(n.x,n.y,n.r*devicePixelRatio,0,Math.PI*2);
+      ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('resize', resize);
+  init(); tick();
+})();
+
+/* ---- capability constellation ---- */
+(function(){
+  const caps = [
+    {t:'Collaboration', d:'Teams, SharePoint & Viva connecting 350+ specialists across 20 markets.', icon:'users', tone:''},
+    {t:'Messaging', d:'216K mailboxes and 2.9PB of email data, migrated and managed end to end.', icon:'mail', tone:''},
+    {t:'Endpoint Management', d:'142K managed clients and 84K mobile devices under unified control.', icon:'laptop', tone:'purple'},
+    {t:'AI', d:'A GenAI Centre of Excellence incubating every DWS intelligent capability.', icon:'brain-circuit', tone:'purple'},
+    {t:'Copilot', d:'78K enabled users on a structured adoption and governance framework.', icon:'sparkles', tone:'purple'},
+    {t:'Infrastructure', d:'Zero-trust identity and cloud infrastructure for 137K+ active users.', icon:'server-cog', tone:''},
+    {t:'Security', d:'GRC, risk management and compliance-by-design across every service.', icon:'shield-check', tone:''},
+    {t:'Sustainability', d:'Digital Influence programme reducing DWS\'s Scope 3 carbon footprint.', icon:'leaf', tone:'green'},
+  ];
+  document.getElementById('capability-grid').innerHTML = caps.map((c,i)=>`
+    <div class="glass cap-card" style="animation-delay:${(i*0.35).toFixed(2)}s;">
+      <div class="icon-circle ${c.tone}"><i data-lucide="${c.icon}"></i></div>
+      <h4>${c.t}</h4>
+      <p>${c.d}</p>
+    </div>`).join('');
+})();
+
+
+(function(){
+  const svg = document.getElementById('world-svg');
+  const tooltip = document.getElementById('map-tooltip');
+  const mapWrap = document.getElementById('footprint-map');
+  const W = 1000, H = 480;
+
+  const locations = [
+    {name:'Hungary', x:552, y:113, fte:'—', services:'Collaboration & Messaging Delivery Hub'},
+    {name:'Romania', x:572, y:122, fte:'—', services:'Infrastructure & Service Operations'},
+    {name:'Spain', x:490, y:132, fte:'—', services:'Business Performance & PMO'},
+    {name:'Albania', x:555, y:130, fte:'—', services:'Operations Support & Service Desk'},
+    {name:'Turkey', x:580, y:131, fte:'9,180', services:'IT Operations Engineering & Applications'},
+    {name:'Egypt', x:587, y:160, fte:'3,299', services:'Security, Automation & Delivery Centre'},
+    {name:'India', x:705, y:191, fte:'1,658', services:'Global Innovation & Delivery Centre'},
+  ];
+  const hub = {x:600, y:250};
+
+  // ---- soft continent silhouettes (stylised, not geographically precise) ----
+  const continents = `
+    <g fill="rgba(255,255,255,0.045)">
+      <ellipse cx="150" cy="130" rx="95" ry="70"/>
+      <ellipse cx="120" cy="230" rx="60" ry="55"/>
+      <ellipse cx="190" cy="330" rx="55" ry="90"/>
+      <ellipse cx="540" cy="120" rx="90" ry="55"/>
+      <ellipse cx="560" cy="250" rx="85" ry="110"/>
+      <ellipse cx="740" cy="150" rx="150" ry="90"/>
+      <ellipse cx="820" cy="290" rx="90" ry="60"/>
+      <ellipse cx="880" cy="390" rx="70" ry="40"/>
+    </g>`;
+
+  // faint world dot texture
+  let dots = '';
+  for(let x=15; x<W; x+=22){
+    for(let y=15; y<H; y+=22){
+      if(Math.random() > 0.5) continue;
+      dots += `<circle cx="${x}" cy="${y}" r="1" fill="rgba(255,255,255,0.05)"/>`;
+    }
+  }
+
+  // hub → location connector lines
+  let lines = '';
+  locations.forEach((loc,i)=>{
+    const mx = (hub.x+loc.x)/2, my = (hub.y+loc.y)/2 - 30;
+    lines += `<path class="hub-line" data-i="${i}" d="M ${hub.x} ${hub.y} Q ${mx} ${my} ${loc.x} ${loc.y}" fill="none" stroke="#E60000" stroke-width="1.2" stroke-opacity="0.35" stroke-dasharray="4 5"/>`;
+  });
+
+  // hub node
+  const hubHTML = `
+    <g id="map-hub">
+      <circle cx="${hub.x}" cy="${hub.y}" r="26" fill="rgba(230,0,0,0.14)" class="hub-pulse"/>
+      <circle cx="${hub.x}" cy="${hub.y}" r="12" fill="#E60000"/>
+      <text x="${hub.x}" y="${hub.y+4}" fill="#fff" font-family="Space Grotesk" font-weight="700" font-size="9" text-anchor="middle">VOIS</text>
+    </g>`;
+
+  // markers
+  let markers = '';
+  locations.forEach((loc,i)=>{
+    markers += `
+      <g class="map-marker" data-i="${i}" style="cursor:pointer;">
+        <circle cx="${loc.x}" cy="${loc.y}" r="14" fill="rgba(230,0,0,0.14)" class="pulse-ring"/>
+        <circle cx="${loc.x}" cy="${loc.y}" r="5" fill="#E60000" stroke="#fff" stroke-width="1.2"/>
+        <text x="${loc.x}" y="${loc.y-14}" fill="#EDEDEF" font-family="JetBrains Mono" font-size="10.5" font-weight="600" text-anchor="middle">${loc.name}</text>
+      </g>`;
+  });
+
+  svg.innerHTML = `<rect width="${W}" height="${H}" fill="transparent"/>` + continents + dots + lines + hubHTML + markers;
+
+  gsap.to('.hub-pulse', {attr:{r:40}, opacity:0, duration:2.2, repeat:-1, ease:'power1.out'});
+  document.querySelectorAll('.pulse-ring').forEach((el,i)=>{
+    gsap.to(el, {attr:{r:22}, opacity:0, duration:2, repeat:-1, ease:'power1.out', delay:i*0.25});
+  });
+  gsap.utils.toArray('.map-marker').forEach((el,i)=>{
+    gsap.from(el, {opacity:0, scale:0, transformOrigin:'center', duration:.6, delay:i*0.08,
+      scrollTrigger:{trigger:'#footprint-map', start:'top 75%'}});
+  });
+  gsap.utils.toArray('.hub-line').forEach((el,i)=>{
+    gsap.fromTo(el, {strokeDashoffset:60}, {strokeDashoffset:0, duration:2, repeat:-1, ease:'none'});
+  });
+
+  // hover tooltip + highlight connector
+  document.querySelectorAll('.map-marker').forEach(el=>{
+    const i = el.dataset.i, loc = locations[i];
+    el.addEventListener('mouseenter', (e)=>{
+      document.getElementById('tt-name').textContent = loc.name;
+      document.getElementById('tt-fte').textContent = loc.fte === '—' ? 'Delivery Location' : loc.fte + ' FTEs';
+      document.getElementById('tt-services').textContent = loc.services;
+      const rect = mapWrap.getBoundingClientRect();
+      const px = (loc.x/W)*rect.width, py = (loc.y/H)*rect.height;
+      tooltip.style.left = Math.min(px+16, rect.width-210) + 'px';
+      tooltip.style.top = Math.max(py-70, 10) + 'px';
+      tooltip.style.opacity = '1';
+      svg.querySelector(`.hub-line[data-i="${i}"]`)?.setAttribute('stroke-opacity','1');
+    });
+    el.addEventListener('mouseleave', ()=>{
+      tooltip.style.opacity = '0';
+      svg.querySelector(`.hub-line[data-i="${i}"]`)?.setAttribute('stroke-opacity','0.35');
+    });
+  });
+})();
+
+/* ---- services portfolio ---- */
+(function(){
+  const services = [
+    {t:'Strategy, Design & Architecture', d:'Business/IT strategy development, architecture security & compliance, architecture transformation and governance, solution design & digital experience.', icon:'compass'},
+    {t:'Infrastructure Management', d:'M365 tenant, AD/Entra ID, end-user provisioning, passwordless and zero-trust infrastructure services.', icon:'server'},
+    {t:'Messaging & Collaboration', d:'End-to-end email management, SharePoint services, intranet & landing page delivery, real-time communications.', icon:'mail'},
+    {t:'Unified Endpoint Management', d:'Modern device management, E2E RFP for IT procurement, lifecycle management (HAM), device & peripheral testing.', icon:'smartphone'},
+    {t:'Operations Support', d:'Service desk, floor support services, print management, vendor management, data centre management, VIP support.', icon:'headset'},
+    {t:'Project Management', d:'Business analysis, demand management, gated PM governance, finance & rechange management, BI reporting (Power BI, Tableau, Splunk).', icon:'kanban-square'},
+    {t:'Business Performance Mgmt.', d:'Resource management, program governance, BA/BI service reporting across the full DWS portfolio.', icon:'bar-chart-3'},
+    {t:'Security & Compliance (GRC)', d:'Service lifecycle compliance, risk management (VA/PT), security-privacy-by-design, GDPR & ISO27001 audit readiness.', icon:'shield-check'},
+    {t:'Automation & Innovation', d:'Copilot Studio, Copilot & GenAI use-case evaluation and implementation, IP & copyrights, license re-harvesting — €25M in savings.', icon:'sparkles'},
+    {t:'IT Consulting Services', d:'IT strategy consulting, digital transformation, service transition, process improvement as a service, E2E PMO.', icon:'lightbulb'},
+    {t:'Software Services', d:'Standardisation, packaging, deployment, monitoring, metering, reharvesting, retiring, and software asset governance (SAM/LCM).', icon:'package'},
+    {t:'Sustainability', d:'Technology debt reduction, e-waste management, UN SDG alignment for digital pollution reduction.', icon:'leaf'},
+  ];
+  const grid = document.getElementById('services-grid');
+  grid.innerHTML = services.map((s,i)=>`
+    <div class="svc-card" data-i="${i}" style="background:var(--charcoal); padding:26px; cursor:pointer; transition:background .3s;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="icon-circle" style="margin-bottom:0;"><i data-lucide="${s.icon}"></i></div>
+        <div class="data-label">${String(i+1).padStart(2,'0')}</div>
+      </div>
+      <div style="font-family:var(--font-display); font-size:16px; font-weight:600; margin-top:14px; line-height:1.3;">${s.t}</div>
+      <div class="svc-desc" style="max-height:0; overflow:hidden; transition:max-height .4s var(--ease); font-size:13px; color:var(--grey-light); line-height:1.6;">
+        <p style="padding-top:12px;">${s.d}</p>
+      </div>
+    </div>`).join('');
+  grid.querySelectorAll('.svc-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const desc = card.querySelector('.svc-desc');
+      const isOpen = desc.style.maxHeight !== '0px' && desc.style.maxHeight !== '';
+      grid.querySelectorAll('.svc-desc').forEach(d=>d.style.maxHeight='0px');
+      grid.querySelectorAll('.svc-card').forEach(c=>c.style.background='var(--charcoal)');
+      if(!isOpen){ desc.style.maxHeight = '160px'; card.style.background='var(--charcoal-2)'; }
+    });
+  });
+})();
+
+/* ---- domains of expertise ---- */
+(function(){
+  const domainIcons = {
+    'Messaging':'mail','Collaboration':'users','RTC':'video',
+    'Infrastructure':'server-cog','UEM Platforms':'layout-grid','UEM Clients':'laptop'
+  };
+  const domains = Object.keys(domainIcons);
+  document.getElementById('domain-chips').innerHTML = domains.map(d=>`
+    <div class="glass reveal" style="padding:24px 16px; text-align:center;">
+      <div class="icon-circle purple" style="margin:0 auto 12px;"><i data-lucide="${domainIcons[d]}"></i></div>
+      <div style="font-family:var(--font-display); font-weight:600; font-size:13px;">${d}</div>
+    </div>`).join('');
+
+  // technology ecosystem — brand-toned identity marks (not reproduced logos), category + description + services
+  const tech = [
+    {name:'Microsoft 365', icon:'grid-3x3', color:'#E8590C', ring:1, category:'Productivity Suite', desc:'Core productivity suite underpinning email, documents and collaboration for 137K+ users worldwide.', services:['Messaging & Collaboration','Infrastructure Management']},
+    {name:'Exchange Online', icon:'mail', color:'#0078D4', ring:1, category:'Messaging', desc:'Cloud mailbox platform hosting 216K mailboxes and 2.9PB of managed email data.', services:['Messaging & Collaboration','Business Email Services']},
+    {name:'SharePoint', icon:'folder-open', color:'#038387', ring:1, category:'Collaboration', desc:'Intranet, document management and 209K+ team sites across Vodafone markets.', services:['Messaging & Collaboration']},
+    {name:'Teams', icon:'video', color:'#6264A7', ring:1, category:'Real-Time Comms', desc:'Primary meetings and chat platform — 1.34M+ Teams meetings hosted.', services:['Real-Time Communications','Collaboration']},
+    {name:'Intune', icon:'smartphone', color:'#0078D4', ring:1, category:'Endpoint Mgmt', desc:'Modern device management across 142K managed clients and 84K mobile devices.', services:['Unified Endpoint Management']},
+    {name:'Entra ID', icon:'fingerprint', color:'#00A4EF', ring:1, category:'Identity & Access', desc:'Zero-trust identity backbone — 333K+ accounts, 160K MFA users, passwordless sign-in.', services:['Infrastructure Management','Security & Compliance']},
+    {name:'Azure', icon:'cloud', color:'#0078D4', ring:1, category:'Cloud Platform', desc:'Foundational cloud infrastructure hosting DWS platforms and automation workloads.', services:['Infrastructure Management','Automation & Innovation']},
+    {name:'Power Platform', icon:'zap', color:'#742774', ring:2, category:'Automation', desc:'Low-code engine behind 859 automated processes and 56.6M transactions.', services:['Automation & Innovation']},
+    {name:'Copilot', icon:'sparkles', color:'#9C2AA0', ring:2, category:'Generative AI', desc:'78K enabled users, powering the GenAI Centre of Excellence and adoption program.', services:['Automation & Innovation','Copilot & AI Transformation']},
+    {name:'Jamf', icon:'apple', color:'#FA6400', ring:2, category:'Mac Management', desc:'Management platform for Vodafone-managed Mac clients across markets.', services:['Unified Endpoint Management']},
+    {name:'Cisco', icon:'network', color:'#049FD9', ring:2, category:'Networking', desc:'Core networking and voice infrastructure underpinning global connectivity.', services:['Infrastructure Management']},
+    {name:'Pexip', icon:'video', color:'#00594F', ring:2, category:'Video Interop', desc:'Cross-platform video interoperability for real-time communications.', services:['Real-Time Communications']},
+    {name:'OneDrive', icon:'cloud', color:'#0078D4', ring:2, category:'Cloud Storage', desc:'Personal cloud storage and file sync integrated across the M365 stack.', services:['Messaging & Collaboration']},
+    {name:'Azure Virtual Desktop', icon:'monitor', color:'#0078D4', ring:2, category:'Virtual Desktop', desc:'Cloud-hosted virtual desktops for flexible, secure remote working.', services:['Infrastructure Management']},
+    {name:'Viva Engage', icon:'message-circle', color:'#EA7100', ring:2, category:'Employee Engagement', desc:'Community and engagement layer connecting 350+ specialists across 20 markets.', services:['Collaboration']},
+  ];
+
+  // flat fallback (mobile)
+  document.getElementById('tech-cloud').innerHTML = tech.map(t=>`
+    <div class="tech-badge" style="--badge-color:${t.color};">
+      <span class="badge-icon"><i data-lucide="${t.icon}"></i></span>
+      <span class="label">${t.name}</span>
+    </div>`).join('');
+
+  // orbital ecosystem (desktop)
+  const iconsWrap = document.getElementById('orbit-icons');
+  const linesSvg = document.getElementById('orbit-lines-svg');
+  const ring1El = document.getElementById('orbit-ring-1');
+  const ring2El = document.getElementById('orbit-ring-2');
+  if(!iconsWrap) return;
+
+  const SIZE = 560, CENTER = SIZE/2, R1 = 155, R2 = 255;
+  ring1El.style.width = ring1El.style.height = (R1*2)+'px';
+  ring2El.style.width = ring2El.style.height = (R2*2)+'px';
+  linesSvg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
+
+  const ring1Items = tech.filter(t=>t.ring===1);
+  const ring2Items = tech.filter(t=>t.ring===2);
+
+  let lineHTML = '';
+  let iconHTML = '';
+  function place(items, radius, ringIdx){
+    const step = (Math.PI*2)/items.length;
+    items.forEach((t,i)=>{
+      const angle0 = -Math.PI/2 + i*step;
+      t._angle0 = angle0;
+      t._radius = radius;
+      t._speed = ringIdx===1 ? 0.045 : -0.03; // rad/sec, rings counter-rotate
+      const x = CENTER + radius*Math.cos(angle0), y = CENTER + radius*Math.sin(angle0);
+      lineHTML += `<line class="orbit-line" data-name="${t.name}" x1="${CENTER}" y1="${CENTER}" x2="${x}" y2="${y}"></line>`;
+      iconHTML += `<div class="orbit-icon" data-name="${t.name}" style="--badge-color:${t.color}; left:${x}px; top:${y}px; transform:translate(-50%,-50%);"><i data-lucide="${t.icon}"></i></div>`;
+    });
+  }
+  place(ring1Items, R1, 1);
+  place(ring2Items, R2, 2);
+  linesSvg.innerHTML = lineHTML;
+  iconsWrap.innerHTML = iconHTML;
+  if(window.lucide) lucide.createIcons();
+
+  // continuous orbital motion
+  const allItems = ring1Items.concat(ring2Items);
+  let last = performance.now();
+  function orbitTick(now){
+    const dt = (now-last)/1000; last = now;
+    allItems.forEach(t=>{
+      t._angle0 += t._speed*dt;
+      const x = CENTER + t._radius*Math.cos(t._angle0), y = CENTER + t._radius*Math.sin(t._angle0);
+      const iconEl = iconsWrap.querySelector(`.orbit-icon[data-name="${CSS.escape(t.name)}"]`);
+      const lineEl = linesSvg.querySelector(`.orbit-line[data-name="${CSS.escape(t.name)}"]`);
+      if(iconEl){ iconEl.style.left = x+'px'; iconEl.style.top = y+'px'; }
+      if(lineEl){ lineEl.setAttribute('x2', x); lineEl.setAttribute('y2', y); }
+    });
+    requestAnimationFrame(orbitTick);
+  }
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    requestAnimationFrame(orbitTick);
+  }
+
+  // click → detail panel
+  const panel = document.getElementById('tech-detail-panel');
+  const dIcon = document.getElementById('tech-detail-icon');
+  const dName = document.getElementById('tech-detail-name');
+  const dCat = document.getElementById('tech-detail-category');
+  const dDesc = document.getElementById('tech-detail-desc');
+  const dServices = document.getElementById('tech-detail-services');
+
+  iconsWrap.addEventListener('click', (e)=>{
+    const el = e.target.closest('.orbit-icon');
+    if(!el) return;
+    const t = tech.find(x=>x.name===el.dataset.name);
+    if(!t) return;
+    iconsWrap.querySelectorAll('.orbit-icon').forEach(n=>n.classList.remove('active'));
+    linesSvg.querySelectorAll('.orbit-line').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    linesSvg.querySelector(`.orbit-line[data-name="${CSS.escape(t.name)}"]`)?.classList.add('active');
+
+    dIcon.style.setProperty('--badge-color', t.color);
+    dIcon.innerHTML = `<i data-lucide="${t.icon}"></i>`;
+    dName.textContent = t.name;
+    dCat.textContent = t.category;
+    dDesc.textContent = t.desc;
+    dServices.innerHTML = t.services.map(s=>`<span class="pill">${s}</span>`).join('');
+    panel.classList.add('open');
+    if(window.lucide) lucide.createIcons();
+  });
+})();
+
+/* ---- DWS evolution vertical roadmap ---- */
+(function(){
+  const journey = [
+    {y:'2014', items:['Go-Live: Ops Support (Service Enablement)','Global OIT Service Management']},
+    {y:'2015', items:['OIT Domain Transformation between India & Egypt','Email & Unified Endpoint Management service go-live','Software enablement in myITShop']},
+    {y:'2016', items:['Windows 7 to 10 upgrade programme','Email Transport Service go-live','AirWatch enforcement for mobile device & app management']},
+    {y:'2017', items:['Exchange Online mailbox migration starts','Project Management service go-live','Order Desk – Perfect Day One']},
+    {y:'2018', items:['VG SAB & PC rights on myITShop','Managed Mac service go-live','Agile introduced in OIT','Fax, Blackberry & Message STAT decommissioned']},
+    {y:'2019', items:['PAW & PUAM introduced for messaging servers','Messaging support extended to 24×5','70K mailboxes migrated to cloud','Move to cloud: AirWatch to Intune begins']},
+    {y:'2020', items:['Security & Compliance function go-live','Migrated mobile platform to Intune','Global e2e self-service tool: myITShop','Exchange Online Archival service go-live']},
+    {y:'2021', items:['Windows 10 to 11 upgrade for 125K users','BYOD service go-live','Global Asset Management standards published']},
+    {y:'2022', items:['Spider integration with EVO (IT POs to GRNs)','Zero-touch deployment for Mac','Spider integration with Jamf']},
+    {y:'2023', items:['App modernisation of myITShop','Lenovo to Dell transition begins','Vodafone-managed Mac clients','SAFe introduced across OIT']},
+    {y:'2024', items:['DWS Innovation (GenAI) COE go-live','Enablement of Copilot','Vodafone Digital Client & DMARC service launched','Business Performance Management go-live']},
+    {y:'2025', items:['Copilot Usage Reports launched','Shared Mobile Devices introduced','Reporting Governance Framework launched','FinOps launched']},
+    {y:'2026', items:['Copilot campaign diffusion & adoption','Productisation: VCAMS','VOIS Copilot Hub community initiative','Key strategic projects executed: UK3, STAM']},
+  ];
+
+  const rows = document.getElementById('roadmap-rows');
+  rows.innerHTML = journey.map((j,i)=>{
+    const side = i%2===0 ? 'left' : 'right';
+    const preview = j.items.slice(0,2);
+    const rest = j.items.slice(2);
+    return `
+    <div class="roadmap-row ${side}" data-y="${j.y}">
+      <div class="roadmap-card-col">
+        <div class="glass roadmap-card" data-idx="${i}">
+          <div style="display:flex; align-items:center; gap:10px; justify-content:${side==='left'?'flex-end':'flex-start'};">
+            <div style="font-family:var(--font-display); font-weight:700; font-size:22px;">${j.y}</div>
+          </div>
+          <ul style="list-style:none; margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+            ${preview.map(it=>`<li style="font-size:12.5px; color:var(--grey-light); line-height:1.5;">${it}</li>`).join('')}
+          </ul>
+          ${rest.length? `
+          <div class="roadmap-desc" data-idx="${i}">
+            <ul style="list-style:none; margin-top:8px; display:flex; flex-direction:column; gap:8px; padding-top:8px; border-top:1px solid var(--line);">
+              ${rest.map(it=>`<li style="font-size:12.5px; color:var(--grey-light); line-height:1.5;">${it}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="data-label" style="margin-top:10px; color:var(--red);">${rest.length? '+ '+rest.length+' more · click to expand' : ''}</div>` : ''}
+        </div>
+      </div>
+      <div class="roadmap-node-col">
+        <div class="roadmap-node" data-idx="${i}"></div>
+      </div>
+      <div class="roadmap-card-col"></div>
+    </div>`;
+  }).join('');
+
+  // expand/collapse
+  rows.querySelectorAll('.roadmap-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const desc = card.querySelector('.roadmap-desc');
+      if(!desc) return;
+      const open = desc.style.maxHeight && desc.style.maxHeight !== '0px';
+      desc.style.maxHeight = open ? '0px' : '200px';
+    });
+  });
+
+  // scroll-driven spine fill + node activation
+  const spineFill = document.querySelector('#roadmap-spine .spine-fill');
+  const roadmapEl = document.getElementById('roadmap');
+  const nodes = Array.from(rows.querySelectorAll('.roadmap-node'));
+
+  function updateRoadmap(){
+    const rect = roadmapEl.getBoundingClientRect();
+    const viewCenter = window.innerHeight*0.55;
+    const total = rect.height;
+    const progressed = Math.min(total, Math.max(0, viewCenter - rect.top));
+    const pct = total>0 ? (progressed/total)*100 : 0;
+    spineFill.style.height = pct + '%';
+
+    nodes.forEach(n=>{
+      const nRect = n.getBoundingClientRect();
+      const active = nRect.top < viewCenter;
+      n.classList.toggle('active', active);
+      const yearEl = n.parentElement.querySelector('.roadmap-year');
+    });
+  }
+  window.addEventListener('scroll', updateRoadmap, {passive:true});
+  window.addEventListener('resize', updateRoadmap);
+  updateRoadmap();
+
+  gsap.utils.toArray('.roadmap-row').forEach((el,i)=>{
+    const fromX = i%2===0 ? -40 : 40;
+    gsap.from(el.querySelector('.roadmap-card'), {opacity:0, x:fromX, duration:.8, ease:'power3.out',
+      scrollTrigger:{trigger:el, start:'top 88%'}});
+  });
+})();
+
+/* ---- value chart ---- */
+(function(){
+  const ctx = document.getElementById('value-chart');
+  new Chart(ctx, {
+    type:'line',
+    data:{
+      labels:['FY24 Q1','FY24 Q3','FY25 Q1','FY25 Q3','FY26 Q1'],
+      datasets:[
+        {label:'Mailboxes Migrated (K)', data:[140,175,198,214,225], borderColor:'#E60000', backgroundColor:'rgba(230,0,0,0.12)', fill:true, tension:.4},
+        {label:'Copilot Users (K)', data:[5,18,38,58,78], borderColor:'#9C2AA0', backgroundColor:'rgba(156,42,160,0.14)', fill:true, tension:.4}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ labels:{ color:'#8A8D90', font:{family:'JetBrains Mono', size:11} } } },
+      scales:{
+        x:{ ticks:{color:'#8A8D90', font:{family:'JetBrains Mono', size:10}}, grid:{color:'rgba(255,255,255,0.06)'} },
+        y:{ ticks:{color:'#8A8D90', font:{family:'JetBrains Mono', size:10}}, grid:{color:'rgba(255,255,255,0.06)'} }
+      }
+    }
+  });
+})();
+
+/* ---- innovation cards ---- */
+(function(){
+  const items = [
+    {t:'Copilot Adoption', d:'Structured rollout framework driving license-to-habit conversion across markets.', icon:'trending-up'},
+    {t:'Copilot Usage Reports', d:'Governance dashboards tracking engagement, ROI and productivity impact.', icon:'bar-chart-3'},
+    {t:'Copilot Studio Solutions', d:'Custom agents built on Copilot Studio for domain-specific workflows.', icon:'bot'},
+    {t:'GenAI Centre of Excellence', d:'The incubation engine for every DWS AI capability, live since 2024.', icon:'brain-circuit'},
+    {t:'Digital Ally', d:'AI-assisted support companion for everyday employee IT journeys.', icon:'life-buoy'},
+    {t:'Intensify', d:'Mass-mailer and communications tool for large-scale employee campaigns.', icon:'megaphone'},
+    {t:'TAME', d:'Purpose-built platform for technology asset management and equilibrium.', icon:'settings-2'},
+    {t:'OLET', d:'Operational lifecycle and equipment tracking for enterprise devices.', icon:'boxes'},
+    {t:'VCAMS', d:'Productised compliance & asset management solution, commercialised in 2026.', icon:'badge-check'},
+    {t:'myITShop', d:'Global e2e self-service portal for IT requests, modernised in 2023.', icon:'shopping-bag'},
+  ];
+  document.getElementById('innovation-grid').innerHTML = items.map(it=>`
+    <div class="glass innov-card" style="padding:26px; position:relative; overflow:hidden;">
+      <div class="icon-circle purple"><i data-lucide="${it.icon}"></i></div>
+      <div style="font-family:var(--font-display); font-weight:600; font-size:17px; margin-bottom:10px;">${it.t}</div>
+      <div style="font-size:13px; color:var(--grey-light); line-height:1.6;">${it.d}</div>
+    </div>`).join('');
+})();
+
+/* ---- strategic projects carousel ---- */
+(function(){
+  const projects = [
+    {t:'UK3 Churchill', icon:'flag', challenge:'Complex market carve-out requiring rapid workplace re-platforming.', solution:'End-to-end messaging, endpoint and identity migration delivered on an accelerated timeline.', value:'Zero business disruption during transition.', impact:'Delivered as a flagship 2026 strategic project.'},
+    {t:'Google Workspace', icon:'layout-grid', challenge:'Coexistence and interoperability needs across mixed productivity suites.', solution:'Integrated identity and collaboration bridging between Microsoft 365 and Google Workspace.', value:'Seamless cross-platform employee experience.', impact:'Reduced friction for market-specific tooling needs.'},
+    {t:'Vodafone Digital Client (VDC)', icon:'laptop', challenge:'Fragmented device experience across markets.', solution:'Standardised Digital Client model launched in 2024 alongside DMARC service enablement.', value:'Consistent, secure endpoint experience at scale.', impact:'Foundation for shared mobile device rollout in 2025.'},
+    {t:'Shared Mobile Devices', icon:'smartphone', challenge:'High device cost-to-serve for shift and frontline staff.', solution:'Shared device model introduced in 2025 with governed provisioning.', value:'Lower total cost of ownership per user.', impact:'Expanded mobile access without proportional device spend.'},
+    {t:'Business Email Services', icon:'mail-check', challenge:'Legacy on-prem mail footprint and rising carbon cost.', solution:'Cloudification of business mail with on-prem footprint reduction.', value:'~19,900kg CO₂ emissions avoided per year.', impact:'24bn+ mail and 650TB migrated to cloud.'},
+  ];
+  document.getElementById('projects-track').innerHTML = projects.map(p=>`
+    <div class="glass" style="min-width:340px; max-width:340px; padding:30px;">
+      <div class="icon-circle"><i data-lucide="${p.icon}"></i></div>
+      <div style="font-family:var(--font-display); font-weight:600; font-size:19px; margin-bottom:18px;">${p.t}</div>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div><div class="data-label" style="color:var(--red);">Challenge</div><div style="font-size:13px; color:var(--grey-light); margin-top:4px; line-height:1.5;">${p.challenge}</div></div>
+        <div><div class="data-label" style="color:var(--purple);">Solution</div><div style="font-size:13px; color:var(--grey-light); margin-top:4px; line-height:1.5;">${p.solution}</div></div>
+        <div><div class="data-label">Business Value</div><div style="font-size:13px; color:var(--off-white); margin-top:4px; line-height:1.5;">${p.value}</div></div>
+        <div><div class="data-label">Impact</div><div style="font-size:13px; color:var(--off-white); margin-top:4px; line-height:1.5;">${p.impact}</div></div>
+      </div>
+    </div>`).join('');
+})();
+
+/* ---- sustainability chart ---- */
+(function(){
+  const ctx = document.getElementById('sustain-chart');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['Sent (~22M)','Received (~290M)','With Attachments (~490M)','Spam (~5.4M)'],
+      datasets:[{
+        label:'CO₂ tons/month',
+        data:[87,1100,2500,1.6],
+        backgroundColor:['#3ddc84','#2fae68','#1f7a49','#175c37'],
+        borderRadius:6
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{color:'#8A8D90', font:{family:'JetBrains Mono', size:10}}, grid:{color:'rgba(255,255,255,0.06)'} },
+        y:{ ticks:{color:'#8A8D90', font:{family:'JetBrains Mono', size:10}}, grid:{display:false} }
+      }
+    }
+  });
+})();
+
+/* ---- copilot flow ---- */
+(function(){
+  const steps = [
+    {t:'Readiness', d:'Baseline licensing, data governance and security posture assessment.', icon:'clipboard-check'},
+    {t:'Rollout', d:'Phased campaign diffusion and adoption across markets.', icon:'rocket'},
+    {t:'Usage Intelligence', d:'Copilot Usage Reports track engagement by persona and market.', icon:'line-chart'},
+    {t:'Productivity Impact', d:'Meeting intelligence and workflow measurement quantify time saved.', icon:'timer'},
+    {t:'AI Governance', d:'Continuous compliance, commercial data protection, and policy controls.', icon:'shield-check'},
+  ];
+  document.getElementById('copilot-flow').innerHTML = steps.map((s,i)=>`
+    <div class="glass" style="padding:26px 22px; ${i<steps.length-1 && window.innerWidth>900?'border-radius:0;':''} position:relative;">
+      <div class="icon-circle purple"><i data-lucide="${s.icon}"></i></div>
+      <div class="data-label" style="color:var(--purple);">${String(i+1).padStart(2,'0')}</div>
+      <div style="font-family:var(--font-display); font-weight:600; font-size:15px; margin-top:10px;">${s.t}</div>
+      <div style="font-size:12.5px; color:var(--grey-light); margin-top:8px; line-height:1.5;">${s.d}</div>
+    </div>`).join('');
+})();
+
+/* ---- automation tech cloud ---- */
+(function(){
+  const tech = [
+    {name:'Power Platform', icon:'zap', color:'#742774'},
+    {name:'Power Automate', icon:'workflow', color:'#0066FF'},
+    {name:'RPA', icon:'bot', color:'#E60000'},
+    {name:'Workato', icon:'link-2', color:'#3D4EFF'},
+    {name:'GenAI', icon:'sparkles', color:'#9C2AA0'},
+    {name:'OCR', icon:'scan-text', color:'#00A4EF'},
+    {name:'Power Apps', icon:'app-window', color:'#742774'},
+    {name:'Power BI', icon:'pie-chart', color:'#F2C811'},
+    {name:'Automation Delivery Framework', icon:'git-branch', color:'#4A4D4E'},
+  ];
+  document.getElementById('automation-cloud').innerHTML = tech.map(t=>`
+    <div class="tech-badge" style="--badge-color:${t.color};">
+      <span class="badge-icon"><i data-lucide="${t.icon}"></i></span>
+      <span class="label">${t.name}</span>
+    </div>`).join('');
+})();
+
+/* ---- org / delivery model ---- */
+(function(){
+  const lines = [
+    {t:'IT Operations Engineering', d:'End-to-end IT operations including SRE and DevOps.', fte:'2,917', icon:'activity'},
+    {t:'Vodafone Cloud Services', d:'Compute & infrastructure management, on-prem and cloud, across VF Group, VCI, JV & partner markets.', fte:'1,392', icon:'cloud'},
+    {t:'Corporate Applications', d:"VF Group's backbone for SAP HANA/EVO and local market SAP platforms.", fte:'1,783', icon:'building-2'},
+    {t:'Data & Analytics', d:'Software engineering & DevOps for BI, Finance, Neuron and Nucleus platforms.', fte:'933', icon:'database'},
+    {t:'Applications Development', d:'Core BSS stack engineering, IDM security, CP&S platforms, SharePoint, VOIS COTS.', fte:'1,943', icon:'code-2'},
+    {t:'Digital Channels & Products', d:'Engineering for Web, App, IVR and Retail digital channels across markets.', fte:'973', icon:'monitor-smartphone'},
+    {t:'Business Solutions & PMO', d:'TES services and project management (PMI, Prince2, Agile, SAFe) for CBU/EBU/IT.', fte:'1,000', icon:'clipboard-list'},
+    {t:'IT Platforms & Automation', d:'Platform management for Helios, IPsoft, Tobi, Enterprise Git, RPA, BPM.', fte:'1,157', icon:'workflow'},
+    {t:'Business Quality Assurance', d:'End-to-end QA and testing focused on automation and quality management.', fte:'1,468', icon:'badge-check'},
+    {t:'Cyber Security', d:"Backbone for VF's cyber security engineering and operations across all platforms.", fte:'363', icon:'shield'},
+  ];
+  const grid = document.getElementById('org-grid');
+  grid.innerHTML = lines.map((l,i)=>`
+    <div class="org-card" data-i="${i}" style="background:var(--charcoal); padding:24px; cursor:pointer;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="icon-circle" style="margin-bottom:0;"><i data-lucide="${l.icon}"></i></div>
+        <div class="stat-num" style="font-size:20px;">${l.fte}</div>
+      </div>
+      <div class="stat-label" style="margin-top:8px;">FTEs</div>
+      <div style="font-family:var(--font-display); font-weight:600; font-size:14px; margin-top:14px; line-height:1.3;">${l.t}</div>
+      <div class="org-desc" style="max-height:0; overflow:hidden; transition:max-height .4s var(--ease); font-size:12px; color:var(--grey-light); line-height:1.6;"><p style="padding-top:10px;">${l.d}</p></div>
+    </div>`).join('');
+  grid.querySelectorAll('.org-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const desc = card.querySelector('.org-desc');
+      const isOpen = desc.style.maxHeight !== '0px' && desc.style.maxHeight !== '';
+      grid.querySelectorAll('.org-desc').forEach(d=>d.style.maxHeight='0px');
+      grid.querySelectorAll('.org-card').forEach(c=>c.style.background='var(--charcoal)');
+      if(!isOpen){ desc.style.maxHeight='140px'; card.style.background='var(--charcoal-2)'; }
+    });
+  });
+})();
+
+/* render all lucide icons now that dynamic markup is injected */
+if(window.lucide){ lucide.createIcons(); }
+
+/* refresh scrolltrigger after dynamic content injected */
+ScrollTrigger.refresh();
+
+/* ================= GLOBAL DWS JOURNEY LINE ================= */
+(function(){
+  const wrap = document.getElementById('journey-line-wrap');
+  const svg = document.getElementById('journey-line-svg');
+  const trackPath = document.getElementById('journey-track-path');
+  const progressPath = document.getElementById('journey-progress-path');
+  const nodesG = document.getElementById('journey-nodes');
+  const particlesG = document.getElementById('journey-particles');
+  if(!wrap || window.innerWidth < 900) return;
+
+  const anchorSelectors = ['#hero','#footprint','#services','#domains','#projects','#innovation','#sustainability','#journey','#copilot','#contact'];
+  let meta = null;
+
+  function build(){
+    const docHeight = document.documentElement.scrollHeight;
+    wrap.style.height = docHeight + 'px';
+    const xBase = Math.max(46, window.innerWidth*0.035);
+    const amplitude = 16;
+
+    let points = anchorSelectors
+      .map(sel=>document.querySelector(sel))
+      .filter(Boolean)
+      .map(el=>{
+        const rect = el.getBoundingClientRect();
+        return { y: rect.top + window.scrollY, label: el.id };
+      })
+      .sort((a,b)=>a.y-b.y);
+
+    if(points.length < 2) return;
+
+    let d = `M ${xBase} ${points[0].y}`;
+    for(let i=1;i<points.length;i++){
+      const y0=points[i-1].y, y1=points[i].y;
+      const xOff = (i%2===0? amplitude : -amplitude);
+      const cy1 = y0 + (y1-y0)*0.33, cy2 = y0 + (y1-y0)*0.66;
+      d += ` C ${xBase+xOff} ${cy1}, ${xBase-xOff} ${cy2}, ${xBase} ${y1}`;
+    }
+    d += ` L ${xBase} ${docHeight-40}`;
+
+    trackPath.setAttribute('d', d);
+    progressPath.setAttribute('d', d);
+    svg.setAttribute('viewBox', `0 0 ${window.innerWidth} ${docHeight}`);
+
+    const totalLen = progressPath.getTotalLength();
+    progressPath.style.strokeDasharray = totalLen;
+    progressPath.style.strokeDashoffset = totalLen;
+
+    nodesG.innerHTML = points.map((p,i)=>
+      `<circle class="journey-node" data-y="${p.y}" cx="${xBase}" cy="${p.y}" r="6"></circle>
+       <circle class="journey-node-core" data-y="${p.y}" cx="${xBase}" cy="${p.y}" r="3"></circle>`
+    ).join('');
+
+    meta = { totalLen, docHeight, path: progressPath };
+  }
+
+  function update(){
+    if(!meta) return;
+    const centerY = window.scrollY + window.innerHeight*0.5;
+    const frac = Math.min(1, Math.max(0, centerY / meta.docHeight));
+    meta.path.style.strokeDashoffset = meta.totalLen * (1-frac);
+    document.querySelectorAll('.journey-node-core').forEach(n=>{
+      const y = parseFloat(n.dataset.y);
+      const active = centerY > y;
+      n.style.opacity = active ? '1' : '0';
+      n.style.transform = active ? 'scale(1)' : 'scale(0.3)';
+      n.style.transition = 'opacity .4s ease, transform .4s ease';
+    });
+  }
+
+  function animateParticles(t){
+    if(meta){
+      const revealLen = meta.totalLen - parseFloat(meta.path.style.strokeDashoffset || meta.totalLen);
+      if(revealLen > 8){
+        const tt = t/1000;
+        const speeds = [26, 19, 33];
+        let html = '';
+        speeds.forEach((sp,i)=>{
+          const phase = (tt*sp + i*revealLen/3) % revealLen;
+          const pt = meta.path.getPointAtLength(Math.max(0,phase));
+          html += `<circle class="journey-particle" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${2.6-i*0.4}"></circle>`;
+        });
+        particlesG.innerHTML = html;
+      }
+    }
+    requestAnimationFrame(animateParticles);
+  }
+
+  build(); update();
+  window.addEventListener('scroll', update, {passive:true});
+  window.addEventListener('resize', ()=>{ build(); update(); });
+  window.addEventListener('load', ()=>{ build(); update(); });
+  setTimeout(()=>{ build(); update(); }, 900);
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    requestAnimationFrame(animateParticles);
+  }
+})();
+
+
+</script>
+</body>
+</html>
